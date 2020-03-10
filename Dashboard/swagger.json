@@ -1,0 +1,356 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "title" : "Dashboard",
+    "version" : "1.0.0",
+    "description" : "Dashboard"
+  },
+  "paths" : {
+    "/users/user/verifycredential" : {
+      "get" : {
+        "operationId" : "getVerifycredential",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        },
+        "produces" : [ "application/json" ],
+        "description" : "Retrieve verifycredential",
+        "parameters" : [ {
+          "name" : "password",
+          "in" : "header",
+          "type" : "string",
+          "required" : true
+        }, {
+          "name" : "username",
+          "in" : "header",
+          "type" : "string",
+          "required" : true
+        }, {
+          "name" : "appId",
+          "in" : "header",
+          "type" : "string",
+          "required" : true
+        }, {
+          "name" : "appKey",
+          "in" : "header",
+          "type" : "string",
+          "required" : true
+        } ]
+      }
+    },
+    "/users/user/forgotpassword" : {
+      "get" : {
+        "operationId" : "getForgotpassword",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        },
+        "produces" : [ "application/json" ],
+        "description" : "Retrieve forgotpassword",
+        "parameters" : [ {
+          "name" : "username",
+          "in" : "header",
+          "type" : "string",
+          "required" : true
+        } ]
+      }
+    },
+    "/users/user/resetpassword" : {
+      "get" : {
+        "operationId" : "getResetpassword",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        },
+        "produces" : [ "application/json" ],
+        "description" : "Retrieve resetpassword",
+        "parameters" : [ {
+          "name" : "username",
+          "in" : "header",
+          "type" : "string",
+          "required" : true
+        }, {
+          "name" : "password",
+          "in" : "header",
+          "type" : "string",
+          "required" : true
+        } ]
+      }
+    },
+    "/clients/client/projects" : {
+      "get" : {
+        "operationId" : "getProjects",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        },
+        "produces" : [ "application/json" ],
+        "description" : "Retrieve projects",
+        "parameters" : [ {
+          "name" : "client_email",
+          "in" : "header",
+          "type" : "string"
+        }, {
+          "name" : "skip",
+          "in" : "query",
+          "type" : "string"
+        }, {
+          "name" : "username",
+          "in" : "header",
+          "type" : "string"
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "type" : "string"
+        } ]
+      }
+    },
+    "/projects" : {
+      "get" : {
+        "operationId" : "getProjects1",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        },
+        "produces" : [ "application/json" ],
+        "description" : "Retrieve projects",
+        "parameters" : [ {
+          "name" : "skip",
+          "in" : "query",
+          "type" : "string"
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "type" : "string",
+          "required" : false
+        }, {
+          "name" : "username",
+          "in" : "header",
+          "type" : "string"
+        } ]
+      }
+    },
+    "/clients/client" : {
+      "post" : {
+        "operationId" : "postClient",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful."
+          }
+        },
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "description" : "Insert a client",
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "schema" : {
+            "$ref" : "#/definitions/ClientsObject"
+          },
+          "description" : "The request body for the operation",
+          "required" : true
+        }, {
+          "name" : "username",
+          "in" : "header",
+          "type" : "string"
+        } ]
+      },
+      "get" : {
+        "operationId" : "getClient",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "$ref" : "#/definitions/ClientsObject"
+            }
+          }
+        },
+        "produces" : [ "application/json" ],
+        "description" : "Retrieve client",
+        "parameters" : [ {
+          "name" : "username",
+          "in" : "header",
+          "type" : "string"
+        }, {
+          "name" : "client_email",
+          "in" : "header",
+          "type" : "string"
+        } ]
+      },
+      "put" : {
+        "operationId" : "putClient",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful."
+          }
+        },
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "description" : "Update client",
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "schema" : {
+            "$ref" : "#/definitions/UpdateClientObject"
+          },
+          "description" : "The request body for the operation",
+          "required" : true
+        }, {
+          "name" : "username",
+          "in" : "header",
+          "type" : "string"
+        }, {
+          "name" : "client_emailOld",
+          "in" : "header",
+          "type" : "string"
+        } ]
+      }
+    },
+    "/clients" : {
+      "get" : {
+        "operationId" : "getClients",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "$ref" : "#/definitions/ClientsObject"
+            }
+          }
+        },
+        "produces" : [ "application/json" ],
+        "description" : "Retrieve clients",
+        "parameters" : [ {
+          "name" : "username",
+          "in" : "header",
+          "type" : "string"
+        }, {
+          "name" : "skip",
+          "in" : "query",
+          "type" : "string"
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "type" : "string"
+        } ]
+      }
+    },
+    "/projects/project" : {
+      "post" : {
+        "operationId" : "postProject",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful."
+          }
+        },
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "description" : "Insert a project",
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "schema" : {
+            "$ref" : "#/definitions/ProjectOject"
+          },
+          "description" : "The request body for the operation",
+          "required" : true
+        }, {
+          "name" : "username",
+          "in" : "header",
+          "type" : "string"
+        } ]
+      }
+    }
+  },
+  "basePath" : "/dashboard/v1",
+  "definitions" : {
+    "ClientsObject" : {
+      "type" : "object",
+      "properties" : {
+        "Client" : {
+          "type" : "string"
+        },
+        "ClientRep" : {
+          "type" : "string"
+        },
+        "ClientRepEmail" : {
+          "type" : "string"
+        },
+        "ClientRepPhoneNo" : {
+          "type" : "string"
+        },
+        "Address" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "Client", "ClientRep", "ClientRepEmail", "ClientRepPhoneNo", "Address" ]
+    },
+    "UpdateClientObject" : {
+      "type" : "object",
+      "properties" : {
+        "Client" : {
+          "type" : "string"
+        },
+        "ClientRep" : {
+          "type" : "string"
+        },
+        "ClientRepEmail" : {
+          "type" : "string"
+        },
+        "ClientRepPhoneNo" : {
+          "type" : "string"
+        },
+        "Address" : {
+          "type" : "string"
+        },
+        "Status" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "Client", "ClientRep", "ClientRepEmail", "ClientRepPhoneNo", "Address", "Status" ]
+    },
+    "ProjectOject" : {
+      "type" : "object",
+      "properties" : {
+        "ProjectName" : {
+          "type" : "string"
+        },
+        "ProjectDescription" : {
+          "type" : "string"
+        },
+        "ProjectCategory" : {
+          "type" : "string"
+        },
+        "ClientRepEmail" : {
+          "type" : "string"
+        },
+        "ProjectStartDate" : {
+          "type" : "string"
+        },
+        "ProjectEndDate" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "ProjectEndDate", "ProjectStartDate", "ProjectCategory", "ClientRepEmail", "ProjectDescription", "ProjectName" ]
+    }
+  }
+}

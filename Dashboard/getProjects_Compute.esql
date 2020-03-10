@@ -1,0 +1,106 @@
+
+
+CREATE COMPUTE MODULE getProjects_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		DECLARE username, client_email, skip, limit, querystring1, querystring2, querystring,querystring3, querystring4, projectstatus, projectstatus1 CHARACTER;
+		DECLARE i INTEGER 1;
+		DECLARE j,k, projectstatusid, projectstatusid1, clientID, ID, recordcount INTEGER;
+		SET username = InputRoot.HTTPInputHeader.Username;
+		SET client_email = InputRoot.HTTPInputHeader.Client_email;
+		SET skip = InputLocalEnvironment.REST.Input.Parameters.skip;
+		SET limit = InputLocalEnvironment.REST.Input.Parameters.limit;
+		SET querystring1 = 'SELECT * FROM Public."Users" where "Username" = ?';
+		SET Environment.sampleresponse[] = passthru(querystring1,username);
+		
+		IF Environment.sampleresponse[1].Role_Id = 2 THEN
+			SET OutputRoot.JSON.Data.StatusCode = '00';
+			SET OutputRoot.JSON.Data.StatusMessage = 'unsuccessful';
+			SET querystring3 = 'SELECT * FROM Public."Clients" where "Email" = ?';
+			SET Environment.sampleresponse3[] = passthru(querystring3, username);
+			SET ID = Environment.sampleresponse3[1].Client_Id;
+			
+			SET querystring4 = 'SELECT * FROM Public."Projects" where "Client_Id" = ? LIMIT ? OFFSET ?';
+			SET Environment.sampleresponse4[] = PASSTHRU(querystring4, ID, limit, skip);
+			DECLARE recordcount INTEGER CARDINALITY(Environment.sampleresponse4[]); 
+			DECLARE issuesquery1 CHARACTER;
+			
+			WHILE i <= recordcount  DO
+				SET k = Environment.sampleresponse4[i].Project_Id;
+				SET issuesquery1 = 'select count(*) from public."Activities" where "Project_Id" = ?';
+			    SET Environment.issuescount1 = PASSTHRU(issuesquery1, k);
+			    
+			     SET projectstatusid1 = Environment.sampleresponse4[i].ProjStatus_Id;
+			    SET projectstatus1 = 'select * from public."Status" where "Status_Id" = ? ';
+			    SET Environment.status1 = PASSTHRU(projectstatus1, projectstatusid1);
+			   
+			     CREATE FIELD OutputRoot.JSON.Data.responseData IDENTITY(JSON.Array) responseData; 
+CREATE LASTCHILD OF OutputRoot.JSON.Data.responseData.Item[i] Domain('JSON') NAME 'id' VALUE Environment.sampleresponse4[i].Project_Id;
+CREATE LASTCHILD OF OutputRoot.JSON.Data.responseData.Item[i] Domain('JSON') NAME 'ProjectName' VALUE Environment.sampleresponse4[i].Project_Name;
+CREATE LASTCHILD OF OutputRoot.JSON.Data.responseData.Item[i] Domain('JSON') NAME 'StartDate' VALUE Environment.sampleresponse4[i].Start_Date;
+CREATE LASTCHILD OF OutputRoot.JSON.Data.responseData.Item[i] Domain('JSON') NAME 'EndDate' VALUE Environment.sampleresponse4[i].End_Date;
+CREATE LASTCHILD OF OutputRoot.JSON.Data.responseData.Item[i] Domain('JSON') NAME 'Issues' VALUE Environment.issuescount1.count;
+CREATE LASTCHILD OF OutputRoot.JSON.Data.responseData.Item[i] Domain('JSON') NAME 'Status' VALUE Environment.status1.Status;
+
+				 SET i = i + 1;
+ 			  
+			END WHILE;
+			
+			  SET OutputRoot.JSON.Data.recordCount = recordcount;
+			  SET OutputRoot.JSON.Data.StatusCode = '99';
+			  SET OutputRoot.JSON.Data.StatusMessage = 'Successful';
+			
+		ELSEIF Environment.sampleresponse[1].Role_Id = 1 or Environment.sampleresponse[1].Role_Id = 3 THEN
+			SET querystring2 = 'SELECT * FROM Public."Clients" where "Email" = ?';
+			SET Environment.sampleresponse1[] = passthru(querystring2, client_email);
+			SET clientID = Environment.sampleresponse1[1].Client_Id;
+			SET querystring = 'SELECT * FROM Public."Projects" where "Client_Id" = ? LIMIT ? OFFSET ?';
+			SET Environment.sampleresponse2[] = PASSTHRU(querystring, clientID, limit, skip);
+			DECLARE rowscount INTEGER CARDINALITY(Environment.sampleresponse2[]); 
+			DECLARE issuesquery CHARACTER;
+			
+			WHILE i <= rowscount  DO
+				SET j = Environment.sampleresponse2[i].Project_Id;
+				SET issuesquery = 'select count(*) from public."Activities" where "Project_Id" = ?';
+			    SET Environment.issuescount = PASSTHRU(issuesquery, j);
+			    
+			    SET projectstatusid = Environment.sampleresponse2[i].ProjStatus_Id;
+			    SET projectstatus = 'select * from public."Status" where "Status_Id" = ? ';
+			    SET Environment.status = PASSTHRU(projectstatus, projectstatusid);
+			    
+			    --CREATE OutputRoot
+			    
+			    CREATE FIELD OutputRoot.JSON.Data.responseData IDENTITY(JSON.Array) responseData;	
+--				SET OutputRoot.JSON.Data.responseData.Item[i].id = Environment.sampleresponse2[i].Project_Id;
+--				SET OutputRoot.JSON.Data.responseData.Item[i].ProjectName = Environment.sampleresponse2[i].Project_Name;
+--				SET OutputRoot.JSON.Data.responseData.Item[i].StartDate = Environment.sampleresponse2[i].Start_Date;
+--				SET OutputRoot.JSON.Data.responseData.Item[i].EndDate = Environment.sampleresponse2[i].End_Date;
+--			    
+CREATE LASTCHILD OF OutputRoot.JSON.Data.responseData.Item[i] Domain('JSON') NAME 'id' VALUE Environment.sampleresponse2[i].Project_Id;
+CREATE LASTCHILD OF OutputRoot.JSON.Data.responseData.Item[i] Domain('JSON') NAME 'ProjectName' VALUE Environment.sampleresponse2[i].Project_Name;
+CREATE LASTCHILD OF OutputRoot.JSON.Data.responseData.Item[i] Domain('JSON') NAME 'StartDate' VALUE Environment.sampleresponse2[i].Start_Date;
+CREATE LASTCHILD OF OutputRoot.JSON.Data.responseData.Item[i] Domain('JSON') NAME 'EndDate' VALUE Environment.sampleresponse2[i].End_Date;
+CREATE LASTCHILD OF OutputRoot.JSON.Data.responseData.Item[i] Domain('JSON') NAME 'Issues' VALUE Environment.issuescount.count;
+CREATE LASTCHILD OF OutputRoot.JSON.Data.responseData.Item[i] Domain('JSON') NAME 'Status' VALUE Environment.status.Status;
+
+				SET i = i + 1;
+		
+			
+			END WHILE;
+			  SET OutputRoot.JSON.Data.recordCount = rowscount;
+			  SET OutputRoot.JSON.Data.StatusCode = '99';
+			  SET OutputRoot.JSON.Data.StatusMessage = 'Successful';
+			  	
+		ELSE 
+			SET OutputRoot.JSON.Data.StatusCode = '00';
+			SET OutputRoot.JSON.Data.StatusMessage = 'Unsuccessful';
+		END IF;
+		
+		RETURN TRUE;
+	END;
+		
+
+
+
+END MODULE;

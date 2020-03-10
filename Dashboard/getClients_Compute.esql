@@ -1,0 +1,50 @@
+
+
+CREATE COMPUTE MODULE getClients_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE username, skip, limit, querystring1, querystring2, projectcount CHARACTER;
+		DECLARE i INTEGER 1;
+		--DECLARE projectcount INTEGER;
+		
+		SET username = InputRoot.HTTPInputHeader.Username;
+		SET skip = InputLocalEnvironment.REST.Input.Parameters.skip;
+		SET limit = InputLocalEnvironment.REST.Input.Parameters.limit;
+		SET querystring1 = 'SELECT * FROM Public."Users" where "Username" = ?';
+		SET Environment.sampleresponse[] = passthru(querystring1,username);
+		
+		IF Environment.sampleresponse[1].Role_Id = 1 or Environment.sampleresponse[1].Role_Id = 3 THEN
+			SET querystring2 = ' SELECT * FROM Public."Clients" LIMIT ? OFFSET ?';
+			SET Environment.sampleresponse1[] = PASSTHRU(querystring2,limit, skip);
+			DECLARE rowscount INTEGER CARDINALITY(Environment.sampleresponse1[]); 
+			
+			    SET projectcount = 'select count(*) from public."Projects"';
+			    SET Environment.projectcount = PASSTHRU(projectcount);
+			
+			WHILE(i <= rowscount) DO
+
+			   CREATE FIELD OutputRoot.JSON.Data.responseData IDENTITY(JSON.Array) responseData;	
+				SET OutputRoot.JSON.Data.responseData.Item[i].Id = Environment.sampleresponse1[i].Client_Id;
+				SET OutputRoot.JSON.Data.responseData.Item[i].ClientName = Environment.sampleresponse1[i].Client_name;
+				SET OutputRoot.JSON.Data.responseData.Item[i].ClientRep = Environment.sampleresponse1[i].Client_rep;
+				SET OutputRoot.JSON.Data.responseData.Item[i].Email = Environment.sampleresponse1[i].Email;
+				--SET OutputRoot.JSON.Data.responseData.Item[i].Status = Environment.status.Status;
+				SET OutputRoot.JSON.Data.responseData.Item[i].Address = Environment.sampleresponse1[i].Address;
+				
+				SET i = i + 1;
+			END WHILE;
+				SET OutputRoot.JSON.Data.ProjectRecordCount = Environment.projectcount.count;
+				SET OutputRoot.JSON.Data.ClientRecordCount = rowscount;
+			    SET OutputRoot.JSON.Data.StatusCode = '99';
+				SET OutputRoot.JSON.Data.StatusMessage = 'Successful';
+		ELSE
+			SET OutputRoot.JSON.Data.StatusCode = '01';
+			SET OutputRoot.JSON.Data.StatusMessage = 'Unsuccessful';
+		END IF;
+			
+		
+		RETURN TRUE;
+	END;
+
+
+END MODULE;

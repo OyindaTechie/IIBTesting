@@ -1,0 +1,50 @@
+
+
+CREATE COMPUTE MODULE postProject_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE username, querystring1, querystring2, querystring3, querystring4 CHARACTER;
+		DECLARE ProjectName, ProjectDescription, ProjectCategory,ClientRepEmail CHARACTER;
+		DECLARE ProjectStartDate,ProjectEndDate CHARACTER;
+		DECLARE i INTEGER 1;
+		DECLARE clientID, ProjectCategoryID INTEGER;
+		
+		SET ProjectName = InputRoot.JSON.Data.ProjectName;
+		SET ProjectDescription = InputRoot.JSON.Data.ProjectDescription;
+		SET ProjectCategory = InputRoot.JSON.Data.ProjectCategory;
+		SET ClientRepEmail = InputRoot.JSON.Data.ClientRepEmail;
+		SET ProjectStartDate = InputRoot.JSON.Data.ProjectStartDate;
+		SET ProjectEndDate = InputRoot.JSON.Data.ProjectEndDate;
+		
+		
+		SET username = InputRoot.HTTPInputHeader.Username;
+		SET querystring1 = 'SELECT * FROM Public."Users" where "Username" = ?';
+		SET Environment.sampleresponse[] = passthru(querystring1,username);
+		
+		IF Environment.sampleresponse[1].Role_Id = 1 THEN
+			SET querystring3 = 'SELECT * FROM Public."Clients" where "Email" = ?';
+			SET Environment.sampleresponse1 = passthru(querystring3,ClientRepEmail);
+			SET clientID = Environment.sampleresponse1.Client_Id;
+			
+			SET querystring4 = 'SELECT * FROM Public."ProjectCategory" where "Type" = ?';
+			SET Environment.sampleresponse2 = passthru(querystring4,ProjectCategory);
+			SET ProjectCategoryID = Environment.sampleresponse2.Id;
+			
+
+			SET querystring2 = 'INSERT INTO Public."Projects"("Project_Id","Client_Id","Project_Name","ProjCategory_Id", "ProjStatus_Id", "Description", "Start_Date", "End_Date","Created_Date" ) VALUES(4,clientID,ProjectName,ProjectCategoryID,4,ProjectDescription,ProjectStartDate,ProjectEndDate,localtimestamp)';
+			--PASSTHRU(querystring2,clientID,ProjectName,ProjectCategoryID,ProjectDescription,ProjectStartDate,ProjectEndDate);
+			--(select count(*)+1 from Public.Projects")
+			PASSTHRU(querystring2);
+			
+			
+			SET OutputRoot.JSON.Data.StatusCode = '01';
+			SET OutputRoot.JSON.Data.StatusMessage = 'Project created successfully';
+		ELSE
+			SET OutputRoot.JSON.Data.StatusCode = '00';
+			SET OutputRoot.JSON.Data.StatusMessage = 'Unsuccessful';
+		END IF;	
+		RETURN TRUE;
+	END;
+
+
+END MODULE;

@@ -1,0 +1,78 @@
+
+
+CREATE COMPUTE MODULE getClient_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE username, client_email, querystring1, querystring2, querystring3, statusquery, statusquery1 CHARACTER;
+		DECLARE i INTEGER 1;
+		DECLARE statusID, statusID1 INTEGER;
+		
+		SET username = InputRoot.HTTPInputHeader.Username;
+		SET client_email = InputRoot.HTTPInputHeader.Client_email;
+		SET querystring1 = 'SELECT * FROM Public."Users" where "Username" = ?';
+		SET Environment.sampleresponse[] = passthru(querystring1,username);
+		
+		IF Environment.sampleresponse[1].Role_Id = 1 or Environment.sampleresponse[1].Role_Id = 3 THEN
+			SET querystring2 = ' SELECT * FROM Public."Clients" where "Email" = ?';
+			SET Environment.sampleresponse1[] = PASSTHRU(querystring2,client_email);
+			
+			
+			IF EXISTS(Environment.sampleresponse1[]) THEN
+			--DECLARE rowscount INTEGER CARDINALITY(Environment.sampleresponse1[]); 
+				SET statusID = Environment.sampleresponse1[1].Status_Id;
+				SET querystring3 = 'SELECT * FROM Public."Status" where "Status_Id" = ?';
+				SET Environment.statusid1 = PASSTHRU(querystring3,statusID);
+				
+				CREATE FIELD OutputRoot.JSON.Data.responseData IDENTITY(JSON.Array) responseData;	
+				SET OutputRoot.JSON.Data.responseData.Item[1].ClientName = Environment.sampleresponse1[1].Client_name;
+				SET OutputRoot.JSON.Data.responseData.Item[1].ClientRep = Environment.sampleresponse1[1].Client_rep;
+				SET OutputRoot.JSON.Data.responseData.Item[1].Email = Environment.sampleresponse1[1].Email;
+				SET OutputRoot.JSON.Data.responseData.Item[1].PhoneNo = Environment.sampleresponse1[1].Phone_number;
+				SET OutputRoot.JSON.Data.responseData.Item[1].RegisteredDate = Environment.sampleresponse1[1].Created_date;
+				SET OutputRoot.JSON.Data.responseData.Item[i].Status = Environment.statusid1.Status;
+				SET OutputRoot.JSON.Data.responseData.Item[1].Address = Environment.sampleresponse1[1].Address;
+				SET OutputRoot.JSON.Data.StatusCode = '99';
+				SET OutputRoot.JSON.Data.StatusMessage = 'Successful';
+			ELSE
+				SET OutputRoot.JSON.Data.StatusCode = '01';
+				SET OutputRoot.JSON.Data.StatusMessage = 'No Client details found';
+				
+			END IF;
+			
+		ELSEIF Environment.sampleresponse[1].Role_Id = 2 THEN
+			SET querystring3 = ' SELECT * FROM Public."Clients" where "Email" = ?';
+			SET Environment.sampleresponse2[] = PASSTHRU(querystring3,username);
+			IF EXISTS(Environment.sampleresponse2[]) THEN
+			--DECLARE rowscount INTEGER CARDINALITY(Environment.sampleresponse1[]); 
+			    SET statusID1 = Environment.sampleresponse2[1].Status_Id;
+				SET statusquery = 'SELECT * FROM Public."Status" where "Status_Id" = ?';
+				SET Environment.statusid2 = PASSTHRU(statusquery,statusID1);
+			
+				CREATE FIELD OutputRoot.JSON.Data.responseData IDENTITY(JSON.Array) responseData;	
+				SET OutputRoot.JSON.Data.responseData.Item[1].ClientName = Environment.sampleresponse2[1].Client_name;
+				SET OutputRoot.JSON.Data.responseData.Item[1].ClientRep = Environment.sampleresponse2[1].Client_rep;
+				SET OutputRoot.JSON.Data.responseData.Item[1].Email = Environment.sampleresponse2[1].Email;
+				SET OutputRoot.JSON.Data.responseData.Item[1].PhoneNo = Environment.sampleresponse2[1].Phone_number;
+				SET OutputRoot.JSON.Data.responseData.Item[1].RegisteredDate = Environment.sampleresponse2[1].Created_date;
+				SET OutputRoot.JSON.Data.responseData.Item[i].Status = Environment.statusid2.Status;
+				SET OutputRoot.JSON.Data.responseData.Item[1].Address = Environment.sampleresponse2[1].Address;
+				SET OutputRoot.JSON.Data.StatusCode = '99';
+				SET OutputRoot.JSON.Data.StatusMessage = 'Successful';
+			ELSE
+				SET OutputRoot.JSON.Data.StatusCode = '01';
+				SET OutputRoot.JSON.Data.StatusMessage = 'No Client details found';
+				
+			END IF;
+			
+		ELSE 
+			SET OutputRoot.JSON.Data.StatusCode = '00';
+			SET OutputRoot.JSON.Data.StatusMessage = 'Unsuccessful';
+			
+		END IF;
+		
+		
+		RETURN TRUE;
+	END;
+
+
+END MODULE;

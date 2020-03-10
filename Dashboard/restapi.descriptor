@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:restapiDescriptor xmlns="http://com.ibm.etools.mft.descriptor.base" xmlns:ns2="http://com.ibm.etools.mft.descriptor.restapi" definitionType="swagger_20" definitionFile="swagger.json" implementation="gen/Dashboard.msgflow" https="false">
+    <ns2:operations>
+        <ns2:operation name="getClient" implementation="getClient.subflow"/>
+        <ns2:operation name="getClients" implementation="getClients.subflow"/>
+        <ns2:operation name="getForgotpassword" implementation="getForgotpassword.subflow"/>
+        <ns2:operation name="getProjects" implementation="getProjects.subflow"/>
+        <ns2:operation name="getProjects1" implementation="getProjects1.subflow"/>
+        <ns2:operation name="getResetpassword" implementation="getResetpassword.subflow"/>
+        <ns2:operation name="getVerifycredential" implementation="getVerifycredential.subflow"/>
+        <ns2:operation name="postClient" implementation="postClient.subflow"/>
+        <ns2:operation name="postProject" implementation="postProject.subflow"/>
+        <ns2:operation name="putClient" implementation="putClient.subflow"/>
+    </ns2:operations>
+    <ns2:errorHandlers/>
+</ns2:restapiDescriptor>

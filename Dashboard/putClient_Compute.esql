@@ -1,0 +1,50 @@
+
+
+CREATE COMPUTE MODULE putClient_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE username,client_emailOld, querystring1, querystring2, querystring3, statusquery, statusquery1 CHARACTER;
+		DECLARE i INTEGER 1;
+		DECLARE statusID, statusID1, userid INTEGER;
+		DECLARE client, clientrep, clientrepemail,clientrepphone, clientaddress, status CHARACTER;
+		SET username = InputRoot.HTTPInputHeader.Username;
+		SET client = InputRoot.JSON.Data.Client;
+		SET clientrep = InputRoot.JSON.Data.ClientRep;
+		SET clientrepemail = InputRoot.JSON.Data.ClientRepEmail;
+		SET clientrepphone = InputRoot.JSON.Data.ClientRepPhoneNo;
+		SET clientaddress = InputRoot.JSON.Data.Address;
+		SET status = InputRoot.JSON.Data.Status;
+		SET client_emailOld = InputRoot.HTTPInputHeader.Client_emailold; 
+	
+		
+		SET querystring1 = 'SELECT * FROM Public."Users" where "Username" = ?';
+		SET Environment.sampleresponse[] = passthru(querystring1,username);
+		
+		IF Environment.sampleresponse[1].Role_Id = 1 THEN
+
+			SET statusquery = 'Select * from Public."Users" where "Username" = ?';
+			SET Environment.sampleresponse = passthru(statusquery, client_emailOld);
+			SET userid = Environment.sampleresponse.UserId; 
+			
+			SET querystring2 = 'SELECT * FROM Public."Status" where  "Status" = ?';
+			SET Environment.status = passthru(querystring2,status);
+			SET statusID = Environment.status.Status_Id;
+			
+			passthru('update Public."Users" set "Username" = ? where "UserId" = ?', clientrepemail,userid);
+			
+			passthru('update Public."Clients" set "Client_name" = ?, "Client_rep" = ?,"Email" = ?, "Phone_number" = ?,"Status_Id" = ?, "Address" = ? where "Email" = ?', client, clientrep,clientrepemail,clientrepphone,statusID,clientaddress,client_emailOld);
+			
+			
+			SET OutputRoot.JSON.Data.StatusCode = '99';
+			SET OutputRoot.JSON.Data.StatusMessage = 'client updated successful';
+		
+			
+		ELSE
+			SET OutputRoot.JSON.Data.StatusCode = '00';
+			SET OutputRoot.JSON.Data.StatusMessage = 'Unsuccessful';
+		END IF;
+		RETURN TRUE;
+	END;
+
+
+END MODULE;

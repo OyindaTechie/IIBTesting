@@ -1,0 +1,48 @@
+
+
+CREATE COMPUTE MODULE postClient_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE username, querystring1, querystring3 CHARACTER;
+		DECLARE statusID, nextID INTEGER;
+		DECLARE client, clientrep, clientrepemail,clientrepphone, clientaddress, querystring2 CHARACTER;
+		SET username = InputRoot.HTTPInputHeader.Username;
+		SET client = InputRoot.JSON.Data.Client;
+		SET clientrep = InputRoot.JSON.Data.ClientRep;
+		SET clientrepemail = InputRoot.JSON.Data.ClientRepEmail;
+		SET clientrepphone = InputRoot.JSON.Data.ClientRepPhoneNo;
+		SET clientaddress = InputRoot.JSON.Data.Address;
+		
+		
+		SET querystring1 = 'SELECT * FROM Public."Users" where "Username" = ?';
+		SET Environment.sampleresponse[] = passthru(querystring1,username);
+		
+		IF Environment.sampleresponse[1].Role_Id = 2 OR Environment.sampleresponse[1].Role_Id = 3 THEN
+			SET OutputRoot.JSON.Data.StatusCode = '00';
+			SET OutputRoot.JSON.Data.StatusMessage = 'unsuccessful';
+			
+		ELSEIF Environment.sampleresponse[1].Role_Id = 1 THEN
+			--SET nextID = '(select count(*)+1 from Public."Clients")';
+			SET statusID = 1;
+			SET querystring3 = 'select * from Public."Clients" where "Email" = ?';
+			SET Environment.sampleoutput[] = passthru(querystring3, clientrepemail);
+			
+			IF EXISTS( Environment.sampleoutput[]) THEN
+				SET OutputRoot.JSON.Data.StatusCode = '01';
+				SET OutputRoot.JSON.Data.StatusMessage = 'Client already exist';
+			ELSE
+			
+			SET querystring2 = 'INSERT INTO Public."Clients"("Client_Id", "Client_name", "Client_rep", "Email", "Phone_number","Status_Id", "Created_date", "Address") VALUES((select count(*)+1 from Public."Clients"),?,?,?,?,?,localtimestamp,?)';
+			PASSTHRU(querystring2,client,clientrep,clientrepemail,clientrepphone,statusID,clientaddress);
+			SET OutputRoot.JSON.Data.StatusCode = '99';
+			SET OutputRoot.JSON.Data.StatusMessage = 'successful';
+			END IF;
+			
+		ELSE
+			SET OutputRoot.JSON.Data.StatusCode = '00';
+			SET OutputRoot.JSON.Data.StatusMessage = 'unsuccessful';
+		END IF;	
+		RETURN TRUE;
+	END;
+
+END MODULE;
